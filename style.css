@@ -1,0 +1,155 @@
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(200,200,200);
+    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif
+}
+.right {
+    text-align: right;
+    width: 1%;
+}
+h1{
+    color: black;
+    text-align: center;
+}
+#main {
+    background-color: rgb(160, 160, 160);
+    width: 90%;
+    height: 90%;
+    padding: 0;
+    margin: 0;
+    overflow-x:hidden;
+    overflow-y: scroll;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 3px solid black;
+    border-radius: 15px;
+}
+#classForm{
+    text-align: center;
+    display: block;
+}
+#classSelector {
+    font-size: 25px;
+}
+
+#hr {
+    width: 400px !important;
+    border-top: 1px solid black;
+    margin: 0 auto;
+}
+
+h3,h2{
+    text-align: center;
+}
+.students {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-around;
+}
+.student {
+    margin: 10px 15px;
+    width: 300px;
+    height: 200px;
+    background-color: rgb(140, 140, 140);
+    border: 1px solid black;
+    border-radius: 15px;
+    padding: 15px;
+}
+.studentAverage {
+    margin: 10px 5px;
+    width: auto;
+    height: 20px;
+    background-color: rgb(140, 140, 140);
+    border: 1px solid black;
+    border-radius: 15px;
+    padding: 10px 15px;
+    font-size: large;
+}
+
+.index {
+    font-weight: bold;
+}
+.subjectAverage {
+    margin: 10px 5px;
+    width: auto;
+    height: 20px;
+    background-color: rgb(140, 140, 140);
+    border: 1px solid black;
+    border-radius: 15px;
+    padding: 10px 15px;
+    font-size: large;
+}
+
+
+#classAverageForm {
+    display: block;
+    text-align: center;
+    margin: 10px;
+}
+#classAverageForm button {
+    padding: 10px;
+    font-weight: bold;
+    background-color: rgb(220, 220, 220);
+    margin: 7px;
+    border: 0.5px solid black;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#classAverageForm button:hover{
+    background-color: rgb(200, 200, 200);
+}
+
+.table {
+    display: flex;
+    flex-direction: column;
+    border-collapse: collapse;
+    width: 70%;
+    margin: auto;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    border-radius: 5px;
+    background-color: rgb(220, 220, 220);
+}
+
+
+.row {
+    display: flex;
+    border-top: 1px solid black;
+    justify-content: space-between;
+    
+}
+.cell {
+    flex: 1;
+    padding: 10px;
+    box-sizing: border-box;
+}
+.leftes .cell:last-child{
+    text-align: right;
+    margin-right: 10px;
+}
+.row:last-child{
+    border-bottom: 1px solid black;
+}
+.row .cell:empty{
+    border: none;
+}
+.space {
+    margin-right: 15px;
+}
+#asd {
+    width: 100%;
+}
+#asd td{
+    vertical-align: top;
+    width: 30%;
+}
+.dlMid {
+    display: block;
+    margin: auto;
+}
