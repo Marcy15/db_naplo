@@ -17,92 +17,98 @@ function genClassListSQL() {
 }
 
 function loadToDataBase(){
-    if(!dbExists()) {
-        createDatabase();
-        execSql("CREATE TABLE osztaly (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(10) NOT NULL
-        ) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci");
-        execSql("CREATE TABLE nev (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            gender VARCHAR(10) NOT NULL,
-            class_id INT NOT NULL,
-            FOREIGN KEY (class_id) REFERENCES osztaly(id)
-        ) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci");
-        execSql("CREATE TABLE tantargyak (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(50) UNIQUE NOT NULL
-        ) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci");
-        execSql("CREATE TABLE osztalyzat (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            student_id INT NOT NULL,
-            subject_id INT NOT NULL,
-            grade TINYINT NOT NULL,
-            FOREIGN KEY (student_id) REFERENCES nev(id),
-            FOREIGN KEY (subject_id) REFERENCES tantargyak(id)
-        ) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci");
+    execSql("DROP DATABASE school");
+    createDatabase();
+    execSql("CREATE TABLE osztaly (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(10) NOT NULL
+    ) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci");
+    execSql("CREATE TABLE nev (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        gender VARCHAR(10) NOT NULL,
+        class_id INT NOT NULL,
+        FOREIGN KEY (class_id) REFERENCES osztaly(id)
+    ) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci");
+    execSql("CREATE TABLE tantargyak (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(50) UNIQUE NOT NULL
+    ) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci");
+    execSql("CREATE TABLE osztalyzat (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        student_id INT NOT NULL,
+        subject_id INT NOT NULL,
+        grade TINYINT NOT NULL,
+        date VARCHAR(255),
+        FOREIGN KEY (student_id) REFERENCES nev(id),
+        FOREIGN KEY (subject_id) REFERENCES tantargyak(id)
+    ) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci");
 
-        /*foreach(CLASSES as $class) {
-            execSql("INSERT INTO osztaly (name) VALUES ('$class')");
-        }
-        foreach(SUBJECTS as $subject) {
-            execSql("INSERT INTO tantargyak (name) VALUES ('$subject')");
-        }*/
-        $classIds = [];
-        $subjectIds = [];
-        foreach ($_SESSION['classList'] as $class => $students) {
-            // Insert osztályok egy batchben (ha nem létezik)
-            $classIds[$class] = execSql("INSERT INTO osztaly (name) VALUES ('$class')");
+    /*foreach(CLASSES as $class) {
+        execSql("INSERT INTO osztaly (name) VALUES ('$class')");
+    }
+    foreach(SUBJECTS as $subject) {
+        execSql("INSERT INTO tantargyak (name) VALUES ('$subject')");
+    }*/
+    $classIds = [];
+    $subjectIds = [];
+    foreach ($_SESSION['classList'] as $class => $students) {
+        // Insert osztályok egy batchben (ha nem létezik)
+        $classIds[$class] = execSql("INSERT INTO osztaly (name) VALUES ('$class')");
+        
+        $studentData = [];
+        $gradeData = [];
+        $subjectData = [];
+
+        foreach ($students as $student) {
+            // Insert diák adatokat
+            $studentId =execSql("INSERT INTO nev (name, gender, class_id) VALUES ('".$student["name"]."', '".$student["gender"]."', '".$classIds[$class]."')");
             
-            $studentData = [];
-            $gradeData = [];
-            $subjectData = [];
+            // Hozzuk el az utolsó beszúrt rekord ID-ját
+            //echo $studentId;
 
-            foreach ($students as $student) {
-                // Insert diák adatokat
-                $studentId =execSql("INSERT INTO nev (name, gender, class_id) VALUES ('".$student["name"]."', '".$student["gender"]."', '".$classIds[$class]."')");
-                
-                // Hozzuk el az utolsó beszúrt rekord ID-ját
-                echo $studentId;
+            // Inserting grades and collecting subject IDs
+            foreach ($student["grades"] as $subject => $grades) {
+                // Insert subject if not exists and get its ID
+                if (!isset($subjectIds[$subject])) {
+                    $subjectIds[$subject] = execSql("INSERT IGNORE INTO tantargyak (name) VALUES ('$subject')");
+                }
 
-                // Inserting grades and collecting subject IDs
-                foreach ($student["grades"] as $subject => $grades) {
-                    // Insert subject if not exists and get its ID
-                    if (!isset($subjectIds[$subject])) {
-                        $subjectIds[$subject] = execSql("INSERT IGNORE INTO tantargyak (name) VALUES ('$subject')");
+                // Ensure $grades is an array and process each grade
+                if (is_array($grades)) {
+                    // Process each grade in the array
+                    foreach ($grades as $grade) {
+                        $month = rand(1,12);
+                        $day = rand(1,30);
+                        $hour = rand(0,24);
+                        $min = rand(0,60);
+                        $sec = rand(0,60);
+                        $date = "2024-".$month."-".$day." ".$hour.":".$min.":".$sec;
+                        $gradeData[] = "('$studentId', '".$subjectIds[$subject]."', '$grade', '$date')";
                     }
-
-                    // Ensure $grades is an array and process each grade
-                    if (is_array($grades)) {
-                        // Process each grade in the array
-                        foreach ($grades as $grade) {
-                            $gradeData[] = "('$studentId', '".$subjectIds[$subject]."', '$grade')";
-                        }
-                    } else {
-                        // If $grades is a single value, treat it as one grade
-                        $gradeData[] = "('$studentId', '".$subjectIds[$subject]."', '$grades')";
-                    }
+                } else {
+                    // If $grades is a single value, treat it as one grade
+                    $gradeData[] = "('$studentId', '".$subjectIds[$subject]."', '$grades')";
                 }
             }
-
-        // Inserting grades for students
-
-        if (!empty($gradeData)) {
-            execSql("INSERT INTO osztalyzat (student_id, subject_id, grade) VALUES " . implode(", ", $gradeData));
         }
+
+    // Inserting grades for students
+
+    if (!empty($gradeData)) {
+        execSql("INSERT INTO osztalyzat (student_id, subject_id, grade, date) VALUES " . implode(", ", $gradeData));
     }
         
-    } else {
-        execSql("DROP DATABASE school");
     }
 }
 
+if(isset($_POST["exportsql"])) {
+    loadToDataBase();
+}
 
 $currentAvarageView = CLASSES[0];
 if (isset($_POST['export_csv'])) {
-    loadToDataBase();
-    /*$class = $_POST['view'];
+    $class = $_POST['view'];
     $timestamp = date('Y-m-d_Hi');
     ob_clean();
 
@@ -146,7 +152,7 @@ if (isset($_POST['export_csv'])) {
     }
 
     fclose($file);
-    exit;*/
+    exit;
 }
 function generateCsv($filename, $data,$vanKey = false) {
     ob_clean();

@@ -21,9 +21,11 @@ function displayDropdownMenu() {
             echo '<button type="submit" name="tDownload" value="1">Tantárgy Átlag Letöltés</button>';
         } else {
             echo '<button type="submit" name="export_csv" value="1">Letöltés</button>';
+            echo '<button type="submit" name="exportsql" value="1">SQL export</button>';
         }
     } catch (Exception $e) {
         echo '<button type="submit" name="export_csv" value="1">Letöltés</button>';
+        echo '<button type="submit" name="exportsql" value="1">SQL export</button>';
     }
     echo "</form>";
     echo '<div id="hr"></div>';

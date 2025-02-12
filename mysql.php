@@ -93,7 +93,9 @@ function createDatabase($dbName = DB_NAME) {
 
         // Lekérdezés végrehajtása
         if ($mysqli->query($sql) === TRUE) {
-            echo "Az adatbázis sikeresen létrejött: $dbName";
+            //echo "Az adatbázis sikeresen létrejött: $dbName";
+            $message = "Adatbázis kiexportálva ebbe: ".$dbName;
+            echo "<script type='text/javascript'>alert('$message');</script>";
         } else {
             throw new Exception('Hiba lépett fel az adatbázis létrehozása közben: ' . $mysqli->error);
         }
